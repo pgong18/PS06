@@ -1,6 +1,6 @@
 ---
 title: "STAT/MATH 495: Problem Set 06"
-author: "WRITE YOUR NAME HERE"
+author: "Pei Gong"
 date: "2017-10-17"
 output:
   html_document:
@@ -33,9 +33,6 @@ library(knitr)
 Please indicate who you collaborated with on this assignment: 
 
 
-
-
-
 # Setup
 
 Define truth, which again we know for the purposes of this assignment, but in
@@ -56,6 +53,7 @@ This is the target point we'll be trying to predict: $(0.95, f(0.95)) = (0.95, 0
 
 ```{r}
 x0 <- 0.95
+y0<-x0^2
 test_set <- data_frame(x=x0)
 ```
 
@@ -76,10 +74,10 @@ generate_sample <- function(f, n, sigma) {
   # Recall: We don't observe f(x) and epsilon, just (x, y)
   sample <- sample %>% 
     select(x, y)
-  
   return(sample)
 }
 ```
+
 
 Define
 
@@ -92,10 +90,50 @@ n <- 500
 n_sample <- 10000
 ```
 
-
 # Computation
 
 ```{r}
+sample<-generate_sample(f,n,sigma)
+model<-smooth.spline(sample$x,sample$y,df=2)
+SE<-(predict(x=x0,model)$y-y0)^2
+```
+
+
+```{r}
+predict_y<-runif(n = n_sample, min = 1, max = 2)
+SE<-runif(n = n_sample, min = 1, max = 2)
+```
+
+
+```{r}
+
+calculate<-function(n_sample,df){
+   for (i in c(1:n_sample)){
+    sample_single<-generate_sample(f,n,sigma)
+    model<-smooth.spline(sample_single$x,sample_single$y,df=2)
+    predict_y[i]<-predict(x=x0,model)$y
+    SE[i]<-(predict(x=x0,model)$y-y0)^2
+   }
+    MSE_total<-mean(SE)
+    variance_total<-var(predict_y)
+    bias_squared_total<-(y0-mean(predict_y))^2
+  return(c(MSE_total,variance_total,bias_squared_total))
+    }
+
+predictions<-calculate(n_sample,2)  
+```
+    
+}
+
+
+prediction_total<-calculate(n_sample,2)
+```
+
+```{r}
+ha<-c(1,1,1,1,1,1,1,1,1,1)
+for (i in c(1:10)){
+   ha[i]<-runif(n = n, min = 0, max = 1)
+}
 
 ```
 
@@ -104,8 +142,8 @@ n_sample <- 10000
 
 As done in Lec 2.7, for both
 
-* An `lm` regression AKA a `smooth.splines(x, y, df=2)` model fit 
-* A `smooth.splines(x, y, df=99)` model fit 
+* An `lm` regression AKA a `smooth.spline(x, y, df=2)` model fit 
+* A `smooth.spline(x, y, df=99)` model fit 
 
 output tables comparing:
 
