@@ -106,37 +106,23 @@ SE<-runif(n = n_sample, min = 1, max = 2)
 
 
 ```{r}
-
 calculate<-function(n_sample,df){
    for (i in c(1:n_sample)){
     sample_single<-generate_sample(f,n,sigma)
     model<-smooth.spline(sample_single$x,sample_single$y,df=2)
     predict_y[i]<-predict(x=x0,model)$y
-    SE[i]<-(predict(x=x0,model)$y-y0)^2
+    y_real<-rnorm(1,y0,sigma)
+    SE[i]<-(predict(x=x0,model)$y-y_real)^2
    }
     MSE_total<-mean(SE)
     variance_total<-var(predict_y)
     bias_squared_total<-(y0-mean(predict_y))^2
   return(c(MSE_total,variance_total,bias_squared_total))
-    }
+}
 
-predictions<-calculate(n_sample,2)  
+
 ```
     
-}
-
-
-prediction_total<-calculate(n_sample,2)
-```
-
-```{r}
-ha<-c(1,1,1,1,1,1,1,1,1,1)
-for (i in c(1:10)){
-   ha[i]<-runif(n = n, min = 0, max = 1)
-}
-
-```
-
 
 # Tables
 
@@ -153,7 +139,27 @@ output tables comparing:
 
 where `sum = bias_squared + var + irreducible`. You can created cleanly formatted tables like the one above by piping a data frame into `knitr::kable(digits=4)`.
 
+df=2
 
+```{r}
+predictions_2<-calculate(n_sample,2);predictions_2
+sum_2<-predictions_2[2]+predictions_2[3]+sigma^2;sum_2
+```
+
+|  MSE| bias_squared|   var| irreducible|   sum|
+|----:|------------:|-----:|-----------:|-----:|
+|    0.106028594 |  0.013885 | 0.000672| 0.09 | 0.1045578|
+
+df=99
+
+```{r}
+predictions_99<-calculate(n_sample,99);predictions_99
+sum_99<-predictions_99[2]+predictions_99[3]+sigma^2;sum_99
+```
+
+|  MSE| bias_squared|   var| irreducible|   sum|
+|----:|------------:|-----:|-----------:|-----:|
+|    0.105969 |  0.013843 | 0.000665| 0.09 |  0.1045081|
 
 
 # Analysis
