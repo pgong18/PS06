@@ -52,7 +52,7 @@ sigma <- 0.3
 This is the target point we'll be trying to predict: $(0.95, f(0.95)) = (0.95, 0.95^2) = (0.95, 0.9025)$, Thus, the test set is just `x=0.95`
 
 ```{r}
-x0 <- 0.95
+x0 <- 0.5
 y0<-x0^2
 test_set <- data_frame(x=x0)
 ```
@@ -174,7 +174,7 @@ $x$ in this example, and not just for $$\mbox{MSE}\left[\widehat{f}(x_0)\right]
 1. Which of the two models would you choose for predicting the point of interest and why?
 
 **Answers**:
-
-1.
-1.
-1.
+1. Assuming repeating the above procedure infinite number of times, 
+$$\mbox{MSE}\left[\widehat{f}(x_0)\right]=\mbox{Var}\left[\widehat{f}(x_0)\right]+(\mbox{Bias}\left[\widehat{f}(x_0)\right])^2+\sigma^2$$. As shown above the sum=bias_square+var+irreducible is approximately equal to MSE. 
+1. Create a for loop within the xisiting for loop that loops through all the value of x. 
+1. I would use df=2.Because it returns the same level of variance, bias with much less model complexity. The improvement in predictive power of df=99 is not significant enough to increase df from 2 to 99.    
