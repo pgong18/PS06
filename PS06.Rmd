@@ -30,7 +30,7 @@ library(knitr)
 
 # Collaboration
 
-Please indicate who you collaborated with on this assignment: 
+Please indicate who you collaborated with on this assignment: Independent 
 
 
 # Setup
@@ -174,7 +174,10 @@ $x$ in this example, and not just for $$\mbox{MSE}\left[\widehat{f}(x_0)\right]
 1. Which of the two models would you choose for predicting the point of interest and why?
 
 **Answers**:
+
 1. Assuming repeating the above procedure infinite number of times, 
 $$\mbox{MSE}\left[\widehat{f}(x_0)\right]=\mbox{Var}\left[\widehat{f}(x_0)\right]+(\mbox{Bias}\left[\widehat{f}(x_0)\right])^2+\sigma^2$$. As shown above the sum=bias_square+var+irreducible is approximately equal to MSE. 
-1. Create a for loop within the xisiting for loop that loops through all the value of x. 
+
+1. Create a for loop within the xisiting for loop that loops through all the values of x. 
+
 1. I would use df=2.Because it returns the same level of variance, bias with much less model complexity. The improvement in predictive power of df=99 is not significant enough to increase df from 2 to 99.    
