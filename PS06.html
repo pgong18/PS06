@@ -238,7 +238,7 @@ div.tocify {
 }
 sigma &lt;- 0.3</code></pre>
 <p>This is the target point we’ll be trying to predict: <span class="math inline">\((0.95, f(0.95)) = (0.95, 0.95^2) = (0.95, 0.9025)\)</span>, Thus, the test set is just <code>x=0.95</code></p>
-<pre class="r"><code>x0 &lt;- 0.5
+<pre class="r"><code>x0 &lt;- 0.95
 y0&lt;-x0^2
 test_set &lt;- data_frame(x=x0)</code></pre>
 <p>This function generates a random sample of size <span class="math inline">\(n\)</span>; think of this as a “get new data” function. Random in terms of both:</p>
@@ -268,15 +268,12 @@ n_sample &lt;- 10000</code></pre>
 </div>
 <div id="computation" class="section level1">
 <h1>Computation</h1>
-<pre class="r"><code>sample&lt;-generate_sample(f,n,sigma)
-model&lt;-smooth.spline(sample$x,sample$y,df=2)
-SE&lt;-(predict(x=x0,model)$y-y0)^2</code></pre>
 <pre class="r"><code>predict_y&lt;-runif(n = n_sample, min = 1, max = 2)
 SE&lt;-runif(n = n_sample, min = 1, max = 2)</code></pre>
-<pre class="r"><code>calculate&lt;-function(n_sample,df){
+<pre class="r"><code>calculate&lt;-function(n_sample,dfreedom){
    for (i in c(1:n_sample)){
     sample_single&lt;-generate_sample(f,n,sigma)
-    model&lt;-smooth.spline(sample_single$x,sample_single$y,df=2)
+    model&lt;-smooth.spline(sample_single$x,sample_single$y,df=dfreedom)
     predict_y[i]&lt;-predict(x=x0,model)$y
     y_real&lt;-rnorm(1,y0,sigma)
     SE[i]&lt;-(predict(x=x0,model)$y-y_real)^2
@@ -289,38 +286,11 @@ SE&lt;-runif(n = n_sample, min = 1, max = 2)</code></pre>
 </div>
 <div id="tables" class="section level1">
 <h1>Tables</h1>
-<p>As done in Lec 2.7, for both</p>
-<ul>
-<li>An <code>lm</code> regression AKA a <code>smooth.spline(x, y, df=2)</code> model fit</li>
-<li>A <code>smooth.spline(x, y, df=99)</code> model fit</li>
-</ul>
-<p>output tables comparing:</p>
-<table>
-<thead>
-<tr class="header">
-<th align="right">MSE</th>
-<th align="right">bias_squared</th>
-<th align="right">var</th>
-<th align="right">irreducible</th>
-<th align="right">sum</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="right">X</td>
-<td align="right">X</td>
-<td align="right">X</td>
-<td align="right">X</td>
-<td align="right">X</td>
-</tr>
-</tbody>
-</table>
-<p>where <code>sum = bias_squared + var + irreducible</code>. You can created cleanly formatted tables like the one above by piping a data frame into <code>knitr::kable(digits=4)</code>.</p>
 <p>df=2</p>
 <pre class="r"><code>predictions_2&lt;-calculate(n_sample,2);predictions_2</code></pre>
-<pre><code>## [1] 0.099350586 0.000190388 0.006737086</code></pre>
+<pre><code>## [1] 0.1018664387 0.0006666898 0.0138796887</code></pre>
 <pre class="r"><code>sum_2&lt;-predictions_2[2]+predictions_2[3]+sigma^2;sum_2</code></pre>
-<pre><code>## [1] 0.09692747</code></pre>
+<pre><code>## [1] 0.1045464</code></pre>
 <table>
 <thead>
 <tr class="header">
@@ -333,19 +303,19 @@ SE&lt;-runif(n = n_sample, min = 1, max = 2)</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="right">0.106028594</td>
-<td align="right">0.013885</td>
-<td align="right">0.000672</td>
+<td align="right">0.1018664</td>
+<td align="right">0.013879</td>
+<td align="right">0.000666</td>
 <td align="right">0.09</td>
-<td align="right">0.1045578</td>
+<td align="right">0.10454</td>
 </tr>
 </tbody>
 </table>
 <p>df=99</p>
 <pre class="r"><code>predictions_99&lt;-calculate(n_sample,99);predictions_99</code></pre>
-<pre><code>## [1] 0.098238898 0.000193210 0.006729289</code></pre>
+<pre><code>## [1] 1.085173e-01 1.821244e-02 1.782090e-06</code></pre>
 <pre class="r"><code>sum_99&lt;-predictions_99[2]+predictions_99[3]+sigma^2;sum_99</code></pre>
-<pre><code>## [1] 0.0969225</code></pre>
+<pre><code>## [1] 0.1082142</code></pre>
 <table>
 <thead>
 <tr class="header">
@@ -358,11 +328,11 @@ SE&lt;-runif(n = n_sample, min = 1, max = 2)</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="right">0.105969</td>
-<td align="right">0.013843</td>
-<td align="right">0.000665</td>
+<td align="right">0.1085</td>
+<td align="right">0.00000</td>
+<td align="right">0.0182</td>
 <td align="right">0.09</td>
-<td align="right">0.1045081</td>
+<td align="right">0.1082</td>
 </tr>
 </tbody>
 </table>
@@ -378,9 +348,9 @@ SE&lt;-runif(n = n_sample, min = 1, max = 2)</code></pre>
 </ol>
 <p><strong>Answers</strong>:</p>
 <ol style="list-style-type: decimal">
-<li><p>Assuming repeating the above procedure infinite number of times, <span class="math display">\[\mbox{MSE}\left[\widehat{f}(x_0)\right]=\mbox{Var}\left[\widehat{f}(x_0)\right]+(\mbox{Bias}\left[\widehat{f}(x_0)\right])^2+\sigma^2\]</span>. As shown above the sum=bias_square+var+irreducible is approximately equal to MSE.</p></li>
-<li><p>Create a for loop within the xisiting for loop that loops through all the values of x.</p></li>
-<li><p>I would use df=2.Because it returns the same level of variance, bias with much less model complexity. The improvement in predictive power of df=99 is not significant enough to increase df from 2 to 99.</p></li>
+<li><p>Assuming repeating the above procedure infinite number of times, <span class="math display">\[\mbox{MSE}\left[\widehat{f}(x_0)\right]=\mbox{Var}\left[\widehat{f}(x_0)\right]+(\mbox{Bias}\left[\widehat{f}(x_0)\right])^2+\sigma^2\]</span>. As shown above, one possible “sanity check” would be to see if sum=bias_square+var+irreducible is approximately equal to MSE.</p></li>
+<li><p>Create a for loop within the xisiting for loop that loops through all the values of x. MSE, bias^2 and variance will be computed based on all x values.</p></li>
+<li><p>I would use df=2 to predict the point of interest. It is more biased but also less varied.Because the less in variation, we are confident that the predicted <span class="math inline">\(\hat{y}\)</span> is probably around 1 <span class="math inline">\(bias\)</span>=<span class="math inline">\(\sqrt{0.013885}\)</span> away from real <span class="math inline">\(y\)</span>. In contrast, with df=99, we are not sure how far off the predicted value is from the real value because of the high variance.</p></li>
 </ol>
 </div>
 

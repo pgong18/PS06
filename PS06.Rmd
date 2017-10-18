@@ -1,15 +1,18 @@
 ---
-title: "STAT/MATH 495: Problem Set 06"
+title: 'STAT/MATH 495: Problem Set 06'
 author: "Pei Gong"
-date: "2017-10-17"
+date: '2017-10-17'
 output:
   html_document:
-    toc: true
-    toc_float: true
-    toc_depth: 2
-    collapsed: false
-    smooth_scroll: false
+    collapsed: no
     df_print: kable
+    smooth_scroll: no
+    toc: yes
+    toc_depth: 2
+    toc_float: yes
+  pdf_document:
+    toc: yes
+    toc_depth: '2'
 ---
 
 ```{r setup, include=FALSE}
@@ -23,10 +26,6 @@ library(tidyverse)
 library(broom)
 library(knitr)
 ```
-
-
-
-
 
 # Collaboration
 
@@ -52,7 +51,7 @@ sigma <- 0.3
 This is the target point we'll be trying to predict: $(0.95, f(0.95)) = (0.95, 0.95^2) = (0.95, 0.9025)$, Thus, the test set is just `x=0.95`
 
 ```{r}
-x0 <- 0.5
+x0 <- 0.95
 y0<-x0^2
 test_set <- data_frame(x=x0)
 ```
@@ -93,23 +92,16 @@ n_sample <- 10000
 # Computation
 
 ```{r}
-sample<-generate_sample(f,n,sigma)
-model<-smooth.spline(sample$x,sample$y,df=2)
-SE<-(predict(x=x0,model)$y-y0)^2
-```
-
-
-```{r}
 predict_y<-runif(n = n_sample, min = 1, max = 2)
 SE<-runif(n = n_sample, min = 1, max = 2)
 ```
 
 
 ```{r}
-calculate<-function(n_sample,df){
+calculate<-function(n_sample,dfreedom){
    for (i in c(1:n_sample)){
     sample_single<-generate_sample(f,n,sigma)
-    model<-smooth.spline(sample_single$x,sample_single$y,df=2)
+    model<-smooth.spline(sample_single$x,sample_single$y,df=dfreedom)
     predict_y[i]<-predict(x=x0,model)$y
     y_real<-rnorm(1,y0,sigma)
     SE[i]<-(predict(x=x0,model)$y-y_real)^2
@@ -119,25 +111,11 @@ calculate<-function(n_sample,df){
     bias_squared_total<-(y0-mean(predict_y))^2
   return(c(MSE_total,variance_total,bias_squared_total))
 }
-
-
 ```
     
 
 # Tables
 
-As done in Lec 2.7, for both
-
-* An `lm` regression AKA a `smooth.spline(x, y, df=2)` model fit 
-* A `smooth.spline(x, y, df=99)` model fit 
-
-output tables comparing:
-
-|  MSE| bias_squared|   var| irreducible|   sum|
-|----:|------------:|-----:|-----------:|-----:|
-|     X|           X  |     X |      X |         X |
-
-where `sum = bias_squared + var + irreducible`. You can created cleanly formatted tables like the one above by piping a data frame into `knitr::kable(digits=4)`.
 
 df=2
 
@@ -148,7 +126,7 @@ sum_2<-predictions_2[2]+predictions_2[3]+sigma^2;sum_2
 
 |  MSE| bias_squared|   var| irreducible|   sum|
 |----:|------------:|-----:|-----------:|-----:|
-|    0.106028594 |  0.013885 | 0.000672| 0.09 | 0.1045578|
+|    0.1018664 |  0.013879 | 0.000666| 0.09 | 0.10454|
 
 df=99
 
@@ -159,8 +137,7 @@ sum_99<-predictions_99[2]+predictions_99[3]+sigma^2;sum_99
 
 |  MSE| bias_squared|   var| irreducible|   sum|
 |----:|------------:|-----:|-----------:|-----:|
-|    0.105969 |  0.013843 | 0.000665| 0.09 |  0.1045081|
-
+|    0.1085 |  0.00000 | 0.0182| 0.09 |  0.1082|
 
 # Analysis
 
@@ -173,11 +150,11 @@ $x$ in this example, and not just for $$\mbox{MSE}\left[\widehat{f}(x_0)\right]
 = \mbox{MSE}\left[\widehat{f}(0.95)\right]$$.
 1. Which of the two models would you choose for predicting the point of interest and why?
 
-**Answers**:
+**Answers**:  
 
 1. Assuming repeating the above procedure infinite number of times, 
-$$\mbox{MSE}\left[\widehat{f}(x_0)\right]=\mbox{Var}\left[\widehat{f}(x_0)\right]+(\mbox{Bias}\left[\widehat{f}(x_0)\right])^2+\sigma^2$$. As shown above the sum=bias_square+var+irreducible is approximately equal to MSE. 
+$$\mbox{MSE}\left[\widehat{f}(x_0)\right]=\mbox{Var}\left[\widehat{f}(x_0)\right]+(\mbox{Bias}\left[\widehat{f}(x_0)\right])^2+\sigma^2$$. As shown above, one possible "sanity check" would be to see if sum=bias_square+var+irreducible is approximately equal to MSE. 
 
-1. Create a for loop within the xisiting for loop that loops through all the values of x. 
+2. Create a for loop within the xisiting for loop that loops through all the values of x. MSE, bias^2 and variance will be computed based on all x values.  
 
-1. I would use df=2.Because it returns the same level of variance, bias with much less model complexity. The improvement in predictive power of df=99 is not significant enough to increase df from 2 to 99.    
+3. I would use df=2 to predict the point of interest. It is more biased but also less varied.Because the less in variation, we are confident that the predicted $\hat{y}$ is probably around 1 $bias$=$\sqrt{0.013885}$ away from real $y$. In contrast,  with df=99, we are not sure how far off the predicted value is from the real value because of the high variance.  
